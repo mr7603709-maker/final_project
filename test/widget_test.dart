@@ -28,3 +28,38 @@ void main() {
     expect(find.text('1'), findsOneWidget);
   });
 }
+// import 'package:final_project/view/home_screen.dart';
+// import 'package:flutter_test/flutter_test.dart';
+// import 'package:final_project/main.dart';
+// import 'package:final_project/view/welcome_screen.dart';
+
+// void main() {
+//   group('MyApp Widget Tests', () {
+//     testWidgets('Shows WelcomeScreen when not logged in', (WidgetTester tester) async {
+//       // Build app with isLoggedIn = false
+//       await tester.pumpWidget(const MyApp(isLoggedIn: false));
+
+//       // Trigger a frame
+//       await tester.pumpAndSettle();
+
+//       // Verify WelcomeScreen is displayed
+//       expect(find.byType(WelcomeScreen), findsOneWidget);
+
+//       // Optional: check some text in WelcomeScreen
+//       expect(find.text('Welcome'), findsOneWidget); // adjust text as per your WelcomeScreen
+//     });
+
+//     testWidgets('Shows HomeScreen when already logged in', (WidgetTester tester) async {
+//       // Build app with isLoggedIn = true
+//       await tester.pumpWidget(const MyApp(isLoggedIn: true));
+
+//       await tester.pumpAndSettle();
+
+//       // Verify HomeScreen is displayed
+//       expect(find.byType(HomeScreen), findsOneWidget); // make sure HomeScreen is imported
+
+//       // Optional: check some text in HomeScreen
+//       expect(find.text('Home'), findsOneWidget); // adjust text based on your HomeScreen
+//     });
+//   });
+// }

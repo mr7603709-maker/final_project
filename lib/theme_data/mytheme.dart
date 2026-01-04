@@ -6,10 +6,11 @@ final ThemeData lightTheme=ThemeData(
   brightness:Brightness.light,
   scaffoldBackgroundColor: lightBgColor,
 colorScheme: ColorScheme.light(
-  primary: lightTextColor,
+  primary: lighthinttextcolor,
   primaryContainer: lightButtonColor,
   onPrimaryContainer: lightbuttonTextColor,
-  secondaryContainer: lightDivColor
+  secondaryContainer: lightDivColor,
+  
 
 )  ,
 );

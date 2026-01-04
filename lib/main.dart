@@ -1,11 +1,13 @@
 import 'package:final_project/resources/app_route.dart';
 import 'package:final_project/theme_data/mytheme.dart';
-import 'package:final_project/view/welcome_screen.dart';
+import 'package:final_project/view/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ REQUIRED
+  await Firebase.initializeApp();  
 
   runApp(const MyApp());
 }
@@ -21,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       getPages:AppRoute.appRoute(),
-      home: WelcomeScreen(),
+      home:Splashscreen(),
     );
   }
 }

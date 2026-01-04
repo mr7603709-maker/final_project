@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:final_project/customwidget/button_widget.dart';
-import 'package:final_project/utills/show_snackmessage.dart';
 import 'package:final_project/viewmodel/signup_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,7 +20,6 @@ class _SignupScreenState extends State<SignupScreen> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      
       body: SingleChildScrollView(
         child: Container(
           height: height,
@@ -54,7 +52,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ),
               SizedBox(height: height * 0.15),
-        
+
               Form(
                 key: _formKey,
                 child: Column(
@@ -74,7 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           focusNode: SignupVM.nameFocusNode.value,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              Utils.snackBar('Name', 'please enter name');
+                              return 'Please enter name';
                             }
                             return null;
                           },
@@ -106,10 +104,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           focusNode: SignupVM.emailFocusNode.value,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              Utils.snackBar(
-                                'Email',
-                                'please enter correct email',
-                              );
+                              return 'Please enter email';
                             }
                             return null;
                           },
@@ -143,10 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           obscuringCharacter: '*',
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              Utils.snackBar(
-                                'Password',
-                                'please enter correct password',
-                              );
+                              return 'Please enter password';
                             }
                             return null;
                           },
@@ -173,7 +165,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   title: 'Sign up',
                   loading: SignupVM.loading.value,
                   onPress: () {
-                    if (_formKey.currentState!.validate()) {}
+                    if (_formKey.currentState!.validate()) {
+                      SignupVM.signup(context);
+                    }
                   },
                 ),
               ),

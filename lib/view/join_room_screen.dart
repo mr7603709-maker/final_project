@@ -74,10 +74,11 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                               horizontal: width * 0.03,
                             ),
                             child: TextField(
+                              cursorColor: Colors.amber,
                               decoration: InputDecoration(
                                 border: InputBorder.none,
                                 hintText: 'http//dani.to/load',
-                                hintStyle: TextStyle(color: Colors.grey),
+                                hintStyle: TextStyle(color:Theme.of(context).colorScheme.primary),
                               ),
                               style: TextStyle(
                                 color: Theme.of(
@@ -103,7 +104,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                               child: Text(
                                 "Join room",
                                 style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(context).colorScheme.primaryContainer,
                                   fontWeight: FontWeight.bold,
                                   fontSize: width * 0.038,
                                 ),

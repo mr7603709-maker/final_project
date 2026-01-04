@@ -1,8 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:final_project/customwidget/button_widget.dart';
-import 'package:final_project/resources/route_name.dart';
-import 'package:final_project/utills/show_snackmessage.dart';
 import 'package:final_project/viewmodel/login_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -29,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
             image: DecorationImage(
               fit: BoxFit.fill,
-              image:AssetImage('images/signup.png'),
+              image: AssetImage('images/signup.png'),
             ),
           ),
           child: Column(
@@ -54,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: height * 0.15),
-        
+
               Form(
                 key: _formKey,
                 child: Column(
@@ -74,10 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           focusNode: LoginVM.emailFocusNode.value,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              Utils.snackBar(
-                                'Email',
-                                'please enter correct email',
-                              );
+                              return 'Please enter email';
                             }
                             return null;
                           },
@@ -111,10 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscuringCharacter: '*',
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              Utils.snackBar(
-                                'Password',
-                                'please enter correct password',
-                              );
+                              return 'Please enter password';
                             }
                             return null;
                           },
@@ -137,21 +129,19 @@ class _LoginScreenState extends State<LoginScreen> {
               Obx(
                 () => RoundedButtonWidget(
                   width: width * 0.85,
-                  buttonColor:Theme.of(context).colorScheme.primaryContainer,
+                  buttonColor: Theme.of(context).colorScheme.primaryContainer,
                   title: 'Login',
                   loading: LoginVM.loading.value,
                   onPress: () {
                     if (_formKey.currentState!.validate()) {
-                      Get.toNamed(RouteName.homescreen);
+                      LoginVM.login();
                     }
                   },
                 ),
               ),
               SizedBox(height: height * 0.03),
               InkWell(
-                onTap: () {
-                  
-                },
+                onTap: () {},
                 child: Container(
                   height: height * 0.06,
                   width: width * 0.8,

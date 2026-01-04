@@ -1,5 +1,6 @@
 import 'package:final_project/customwidget/button_widget.dart';
-import 'package:final_project/viewmodel/edit_profile.dart';
+import 'package:final_project/model/static_data.dart';
+import 'package:final_project/viewmodel/profile_viewmodel/edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,176 +14,127 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final editprofileVM = Get.put(EditprofileViewModel());
   final formKey = GlobalKey<FormState>();
+
+  // Password visibility
+  bool _obscurePassword = true;
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        title: Text('Edit Profile'),
+        title: const Text('Edit Profile'),
         centerTitle: true,
       ),
-
       body: SizedBox(
         height: height,
         width: width,
         child: Column(
           children: [
             Divider(color: Theme.of(context).colorScheme.primaryContainer),
-           
             Expanded(
-              child: SizedBox(
-                height: height,
-                width: width,
-                child: ListView(
-                  children: [
-                    Column(
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                children: [
+                  SizedBox(height: height * 0.08),
+                  Form(
+                    key: formKey,
+                    child: Column(
                       children: [
-                        SizedBox(height: height * 0.08),
-                        Form(
-                          key: formKey,
-                          child: Column(
-                            children: [
-                              Container(
-                                width: width * 0.85,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    width * 0.025,
-                                  ),
+                        // ---------------- Name ----------------
+                        Obx(() => TextFormField(
+                              controller: editprofileVM.nameController.value,
+                              focusNode: editprofileVM.nameFocusNode.value,
+                              cursorColor: Colors.amber,
+                              style:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              decoration: InputDecoration(
+                                hintText: StaticData.mymodel?.name ?? 'Your name',
+                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
                                 ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.03,
-                                  ),
-                                  child: TextFormField(
-                                    controller:
-                                        editprofileVM.namecontroller.value,
-                                    focusNode:
-                                        editprofileVM.nameFocusNode.value,
-                                    cursorColor: Colors.amber,
-                                    decoration: InputDecoration(
-                                      hintText: 'your name',
-                                      hintStyle: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
-                                      ),
-
-                                      border: InputBorder.none,
-                                    ),
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                    ),
-                                  ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
                                 ),
                               ),
-                              SizedBox(height: height * 0.03),
-                              Container(
-                                width: width * 0.85,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    width * 0.025,
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.03,
-                                  ),
-                                  child: TextFormField(
-                                    controller:
-                                        editprofileVM.emailcontroller.value,
-                                    focusNode:
-                                        editprofileVM.emailFocusNode.value,
-                                    cursorColor: Colors.amber,
-                                    decoration: InputDecoration(
-                                      hintText: 'your email',
-                                      hintStyle: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
-                                      ),
+                            )),
+                        SizedBox(height: height * 0.03),
 
-                                      border: InputBorder.none,
-                                    ),
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                    ),
-                                  ),
+                        // ---------------- Email ----------------
+                        Obx(() => TextFormField(
+                              controller: editprofileVM.emailController.value,
+                              focusNode: editprofileVM.emailFocusNode.value,
+                              cursorColor: Colors.amber,
+                              style: TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              decoration: InputDecoration(
+                                hintText: StaticData.mymodel?.email ?? 'Your email',
+                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
                                 ),
                               ),
-                              SizedBox(height: height * 0.03),
-                              Container(
-                                width: width * 0.85,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
-                                  ),
-                                  borderRadius: BorderRadius.circular(
-                                    width * 0.025,
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: width * 0.03,
-                                  ),
-                                  child: TextFormField(
-                                    controller:
-                                        editprofileVM.passwordcontroller.value,
-                                    focusNode:
-                                        editprofileVM.passwordFocusNode.value,
-                                    cursorColor: Colors.amber,
-                                    decoration: InputDecoration(
-                                      hintText: 'your password',
-                                      hintStyle: TextStyle(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
-                                      ),
+                            )),
+                        SizedBox(height: height * 0.03),
 
-                                      border: InputBorder.none,
-                                    ),
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                    ),
+                        // ---------------- Password ----------------
+                        Obx(() => TextFormField(
+                              controller: editprofileVM.passwordController.value,
+                              focusNode: editprofileVM.passwordFocusNode.value,
+                              cursorColor: Colors.amber,
+                              obscureText: _obscurePassword,
+                              style: TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              decoration: InputDecoration(
+                                hintText: 'Enter new password',
+                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(width * 0.025),
+                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                                   ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: height * 0.15),
-                        RoundedButtonWidget(
-                          onPress: () {},
-                          title: 'Save',
-                          textColor: Theme.of(
-                            context,
-                          ).colorScheme.primaryContainer,
-                          buttonColor: Theme.of(context).colorScheme.onPrimary,
-                        ),
+                            )),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: height * 0.15),
+
+                  // ---------------- Save Button ----------------
+                  RoundedButtonWidget(
+                    onPress: () async {
+                      await editprofileVM.updateProfile(context);
+                    },
+                    title: 'Save',
+                    textColor: Theme.of(context).colorScheme.primaryContainer,
+                    buttonColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ],
               ),
             ),
           ],
