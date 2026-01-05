@@ -7,7 +7,6 @@ import 'package:final_project/view/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
 
@@ -47,6 +46,7 @@ class _SplashscreenState extends State<Splashscreen> {
         debugPrint("Error fetching user data: $e");
       }
 
+      if (!mounted) return;
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,

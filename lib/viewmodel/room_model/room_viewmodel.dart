@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:final_project/model/room_model_class.dart';
 import 'package:final_project/model/static_data.dart';
 import 'package:get/get.dart';
@@ -34,9 +35,8 @@ class RoomViewModel extends GetxController {
 
     try {
       // 🔹 Collection changed to 'finalrooms'
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('finalrooms')
-          .get();
+      final querySnapshot =
+          await FirebaseFirestore.instance.collection('finalrooms').get();
 
       rooms.value = querySnapshot.docs.map((doc) {
         final data = doc.data();
@@ -53,7 +53,7 @@ class RoomViewModel extends GetxController {
         );
       }).toList();
     } catch (e) {
-      print("❌ Error loading rooms: $e");
+      debugPrint("❌ Error loading rooms: $e");
     }
   }
 
@@ -73,16 +73,15 @@ class RoomViewModel extends GetxController {
       }
 
       // 🔹 Collection changed to 'finalrooms'
-      final docRef = await FirebaseFirestore.instance
-          .collection('finalrooms')
-          .add({
-            'roomName': newRoomName.value,
-            'adminId': currentUser.userId ?? '',
-            'adminName': currentUser.name ?? '',
-            'private': isPrivateRoom.value,
-            'members': membersList,
-            'lastMsg': '',
-          });
+      final docRef =
+          await FirebaseFirestore.instance.collection('finalrooms').add({
+        'roomName': newRoomName.value,
+        'adminId': currentUser.userId ?? '',
+        'adminName': currentUser.name ?? '',
+        'private': isPrivateRoom.value,
+        'members': membersList,
+        'lastMsg': '',
+      });
 
       // Update local list
       rooms.insert(
@@ -101,7 +100,52 @@ class RoomViewModel extends GetxController {
       newRoomName.value = '';
       isPrivateRoom.value = false;
     } catch (e) {
-      print("❌ Room create error: $e");
+      debugPrint("❌ Room create error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Join room
+  Future<void> joinRoom(String roomIdOrCode) async {
+    if (roomIdOrCode.trim().isEmpty) return;
+
+    isLoading.value = true;
+    try {
+      final currentUser = StaticData.mymodel;
+      if (currentUser == null) return;
+
+      // 1. Check if room exists
+      final docRef =
+          FirebaseFirestore.instance.collection('finalrooms').doc(roomIdOrCode);
+      final docSnap = await docRef.get();
+
+      if (!docSnap.exists) {
+        Get.snackbar("Error", "Room not found",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.redAccent,
+            colorText: Colors.white);
+        return;
+      }
+
+      // 2. Add user to members list
+      await docRef.update({
+        'members': FieldValue.arrayUnion([currentUser.userId])
+      });
+
+      Get.snackbar("Success", "Joined room successfully!",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white);
+
+      // Refresh list
+      await loadRooms();
+    } catch (e) {
+      debugPrint("❌ Join room error: $e");
+      Get.snackbar("Error", "Failed to join room",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.redAccent,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }

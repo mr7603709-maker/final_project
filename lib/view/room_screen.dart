@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_project/customwidget/button_widget.dart';
 import 'package:final_project/model/static_data.dart';
 import 'package:final_project/resources/route_name.dart';
 import 'package:final_project/viewmodel/room_model/room_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({super.key});
@@ -15,133 +17,234 @@ class RoomScreen extends StatefulWidget {
 
 class _RoomScreenState extends State<RoomScreen> {
   final RoomViewModel roomVM = Get.put(RoomViewModel());
+  final PageController _pageController = PageController(viewportFraction: 0.85);
+  final ValueNotifier<int> _currentPage = ValueNotifier(0);
+
+  // Curated Hindi Songs
+  final List<Map<String, String>> _trendingSongs = [
+    {
+      'title': 'Kesariya',
+      'artist': 'Arijit Singh',
+      'videoId': 'BddP6PYo2gs',
+      'thumbnail': 'https://img.youtube.com/vi/BddP6PYo2gs/maxresdefault.jpg'
+    },
+    {
+      'title': 'Apna Bana Le',
+      'artist': 'Arijit Singh',
+      'videoId': 'ElZfdU54Cp8',
+      'thumbnail': 'https://img.youtube.com/vi/ElZfdU54Cp8/maxresdefault.jpg'
+    },
+    {
+      'title': 'Jhoome Jo Pathaan',
+      'artist': 'Vishal-Shekhar',
+      'videoId': 'YxWlaYCA8MU',
+      'thumbnail': 'https://img.youtube.com/vi/YxWlaYCA8MU/maxresdefault.jpg'
+    },
+    {
+      'title': 'Maan Meri Jaan',
+      'artist': 'King',
+      'videoId': 'VuG7ge_8I2Y',
+      'thumbnail': 'https://img.youtube.com/vi/VuG7ge_8I2Y/maxresdefault.jpg'
+    },
+  ];
+
   @override
   void initState() {
     super.initState();
-    roomVM.loadRooms(); // load existing rooms
+    roomVM.loadRooms();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-
-    final String currentUserId = StaticData.mymodel!.userId!;
-    final String selectedRoomType = roomVM.roomType.value;
+    final String currentUserId = StaticData.mymodel?.userId ?? '';
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-        title: const Text(
-          'Rooms',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          Icon(Icons.language),
-          SizedBox(width: width * 0.05),
-
-          /// ➕ ADD ICON → SHOW DIALOG DIRECTLY
-          GestureDetector(
-            onTap: () {
-              final size = MediaQuery.of(context).size;
-              showDialog(
-                context: context,
-                barrierColor: Colors.black54,
-                builder: (context) {
-                  return MycustomWidget.addroomWidget(size, roomVM);
-                },
-              );
-            },
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
-
-          SizedBox(width: width * 0.05),
-        ],
-      ),
-      body: SizedBox(
-        height: height,
-        width: width,
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Divider(color: Theme.of(context).colorScheme.primaryContainer),
-            Obx(
-              () => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  /// PUBLIC ROOM BUTTON
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => roomVM.setPublic(),
-                      child: Container(
-                        height: height*0.055,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(width*0.025),
-                          border: Border.all(
-                            color: roomVM.roomType.value == 'public'
-                                ? Colors.green
-                                : Colors.grey,
-                            width: width*0.003,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Public Room',
-                            style: TextStyle(
-                              color: roomVM.roomType.value == 'public'
-                                  ? Colors.green
-                                  : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Discover',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                  ),
-
-                  SizedBox(width:width*0.03),
-
-                  /// PRIVATE ROOM BUTTON
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => roomVM.setPrivate(),
-                      child: Container(
-                        height: height*0.055,
-                        decoration: BoxDecoration(
+                      Text(
+                        'Music & Rooms',
+                        style: GoogleFonts.outfit(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(width*0.025),
-                          border: Border.all(
-                            color: roomVM.roomType.value == 'private'
-                                ? Colors.red
-                                : Colors.grey,
-                            width: width*0.003,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Private Room',
-                            style: TextStyle(
-                              color: roomVM.roomType.value == 'private'
-                                  ? Colors.red
-                                  : Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                    ],
+                  ).animate().slideX(begin: -0.2, end: 0).fade(),
+                  GestureDetector(
+                    onTap: () => _showAddRoomDialog(context, roomVM),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: Colors.blueAccent.withOpacity(0.5)),
+                      ),
+                      child: const Icon(Icons.add_rounded,
+                          color: Colors.white, size: 28),
                     ),
-                  ),
+                  ).animate().scale(delay: 200.ms),
                 ],
               ),
             ),
 
+            // Carousel Section
+            SizedBox(
+              height: height * 0.28,
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) => _currentPage.value = index,
+                itemCount: _trendingSongs.length,
+                itemBuilder: (context, index) {
+                  return AnimatedBuilder(
+                    animation: _pageController,
+                    builder: (context, child) {
+                      double value = 1.0;
+                      if (_pageController.position.haveDimensions) {
+                        value = _pageController.page! - index;
+                        value = (1 - (value.abs() * 0.2)).clamp(0.0, 1.0);
+                      }
+                      return Transform.scale(
+                        scale: value,
+                        child: child,
+                      );
+                    },
+                    child: GestureDetector(
+                      onTap: () => _playVideo(
+                          context, _trendingSongs[index]['videoId']!),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                _trendingSongs[index]['thumbnail']!),
+                            fit: BoxFit.cover,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.5),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            )
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black.withOpacity(0.8)
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.play_arrow_rounded,
+                                    color: Colors.white, size: 30),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 20,
+                              left: 20,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _trendingSongs[index]['title']!,
+                                    style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    _trendingSongs[index]['artist']!,
+                                    style: GoogleFonts.outfit(
+                                        color: Colors.white70, fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ).animate().slideY(begin: 0.2, end: 0).fade(),
+
+            const SizedBox(height: 10),
+
+            // Filters
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Text("Explore Rooms",
+                      style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  Obx(() => _buildMicroFilter(
+                      "Public",
+                      !roomVM.isPrivateRoom.value,
+                      () => roomVM
+                          .setPublic())), // Assuming toggle login in new VM method or reusing
+                  const SizedBox(width: 10),
+                  Obx(() => _buildMicroFilter(
+                      "Private",
+                      roomVM.roomType.value == 'private',
+                      () => roomVM.setPrivate())),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            // Room List
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
@@ -151,18 +254,8 @@ class _RoomScreenState extends State<RoomScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No Rooms Found',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    );
+                    return _buildEmptyState();
                   }
 
                   final filteredRooms = snapshot.data!.docs.where((doc) {
@@ -170,115 +263,33 @@ class _RoomScreenState extends State<RoomScreen> {
                     final bool isPrivate = data['private'] ?? false;
                     final String adminId = data['adminId'] ?? '';
 
-                    if (selectedRoomType == 'public') {
+                    if (roomVM.roomType.value == 'public') {
                       return !isPrivate;
                     } else {
-                      return isPrivate && adminId == currentUserId;
+                      final members = data['members'] != null
+                          ? List<String>.from(
+                              (data['members'] as List<dynamic>))
+                          : [];
+                      return isPrivate &&
+                          (adminId == currentUserId ||
+                              members.contains(currentUserId));
                     }
                   }).toList();
 
-                  if (filteredRooms.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No Rooms Found',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    );
-                  }
+                  if (filteredRooms.isEmpty) return _buildEmptyState();
 
                   return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(
+                        bottom: 100, left: 20, right: 20, top: 10),
                     itemCount: filteredRooms.length,
                     itemBuilder: (context, index) {
                       final room = filteredRooms[index];
                       final roomData = room.data() as Map<String, dynamic>;
-                      final roomName = roomData['roomName'] ?? 'Room';
-                      final creatorName = roomData['adminName'] ?? 'Admin';
-                      final creatorImage = roomData['adminImage'];
-
-                      return InkWell(
-                        onTap: () => Get.toNamed(RouteName.chatroomscreen),
-                        child: SizedBox(
-                          height: height * 0.09,
-                          width: width * 0.98,
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                                radius: width * 0.06,
-                                child:
-                                    creatorImage != null && creatorImage != ''
-                                    ? ClipOval(
-                                        child: Image.network(
-                                          creatorImage,
-                                          fit: BoxFit.cover,
-                                          width: width * 0.12,
-                                          height: width * 0.12,
-                                        ),
-                                      )
-                                    : Text(
-                                        creatorName.isNotEmpty
-                                            ? creatorName[0].toUpperCase()
-                                            : 'A',
-                                        style: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.secondaryContainer,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: width * 0.05,
-                                        ),
-                                      ),
-                              ),
-                              SizedBox(width: width * 0.02),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    roomName,
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimaryContainer,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: width * 0.038,
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Admin: ",
-                                        style: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimaryContainer,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: width * 0.032,
-                                        ),
-                                      ),
-                                      Text(
-                                        creatorName,
-                                        style: TextStyle(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onPrimaryContainer,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: width * 0.03,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      return _buildRoomCard(roomData, width, room.id)
+                          .animate(delay: (50 * index).ms)
+                          .slideY(begin: 0.2, end: 0)
+                          .fade();
                     },
                   );
                 },
@@ -289,280 +300,342 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
   }
-}
 
-class MycustomWidget {
-  static Widget addroomWidget(Size size, RoomViewModel roomVM) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.all(size.width * 0.1),
-      child: Container(
-        height: size.height * 0.35,
-        width: size.width,
-        padding: const EdgeInsets.all(20),
+  void _playVideo(BuildContext context, String videoId) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final controller = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          autoPlay: true,
+          params: const YoutubePlayerParams(
+              showControls: true, showFullscreenButton: true),
+        );
+
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: YoutubePlayer(controller: controller),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMicroFilter(String label, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: 300.ms,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(size.width * 0.05),
+          color: isSelected ? Colors.white : Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
+        child: Text(
+          label,
+          style: GoogleFonts.outfit(
+            color: isSelected ? Colors.black : Colors.white70,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.search_off_rounded,
+              size: 60, color: Colors.white.withOpacity(0.3)),
+          const SizedBox(height: 10),
+          Text("No Rooms Found",
+              style: GoogleFonts.outfit(color: Colors.white54, fontSize: 18)),
+        ],
+      ),
+    ).animate().fade();
+  }
+
+  Widget _buildRoomCard(
+      Map<String, dynamic> data, double width, String roomId) {
+    final roomName = data['roomName'] ?? 'Room';
+    final creatorName = data['adminName'] ?? 'Admin';
+    final creatorImage = data['adminImage'];
+
+    return GestureDetector(
+      onTap: () => Get.toNamed(RouteName.chatroomscreen,
+          arguments: {'roomId': roomId, 'roomName': roomName}),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05)),
+        ),
+        child: Row(
           children: [
-            /// ❌ CLOSE
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(Get.context!),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.blueAccent)),
+              child: CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.black26,
+                backgroundImage: (creatorImage != null && creatorImage != '')
+                    ? NetworkImage(creatorImage)
+                    : null,
+                child: (creatorImage == null || creatorImage == '')
+                    ? Text(
+                        creatorName.isNotEmpty
+                            ? creatorName[0].toUpperCase()
+                            : 'A',
+                        style: const TextStyle(color: Colors.white))
+                    : null,
               ),
             ),
-            const Spacer(),
-
-            /// ➕ CREATE ROOM
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: Get.context!,
-                  builder: (context) => createRoomDialog(size, roomVM),
-                );
-              },
-              child: Container(
-                height: size.height * 0.07,
-                width: size.width * 0.75,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.025),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: size.width * 0.0025,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add,
-                      color: Theme.of(
-                        Get.context!,
-                      ).colorScheme.onPrimaryContainer,
-                    ),
-                    SizedBox(width: size.width * 0.025),
-                    Text(
-                      "Create a new Room",
-                      style: TextStyle(
-                        color: Theme.of(
-                          Get.context!,
-                        ).colorScheme.onPrimaryContainer,
-                        fontSize: size.width * 0.035,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(roomName,
+                      style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600)),
+                  Text("by $creatorName",
+                      style: GoogleFonts.outfit(
+                          color: Colors.white54, fontSize: 13)),
+                ],
               ),
             ),
-            SizedBox(height: size.height * 0.02),
-
-            /// 🔗 JOIN ROOM
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: Get.context!,
-                  builder: (context) => joinexistingroomWidget(size, context),
-                );
-              },
-              child: Container(
-                height: size.height * 0.07,
-                width: size.width * 0.75,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(size.width * 0.02),
-                  border: Border.all(
-                    color: Colors.white,
-                    width: size.width * 0.0025,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.login,
-                      color: Theme.of(
-                        Get.context!,
-                      ).colorScheme.onPrimaryContainer,
-                    ),
-                    SizedBox(width: size.width * 0.025),
-                    Text(
-                      "Join an existing Room",
-                      style: TextStyle(
-                        color: Theme.of(
-                          Get.context!,
-                        ).colorScheme.onPrimaryContainer,
-                        fontSize: size.width * 0.035,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  shape: BoxShape.circle),
+              child: const Icon(Icons.arrow_forward_rounded,
+                  color: Colors.white, size: 16),
             ),
-            const Spacer(),
           ],
         ),
       ),
     );
   }
 
-  // create room dialog Widget
-  static Widget createRoomDialog(Size size, RoomViewModel roomVM) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.all(size.width * 0.1),
+  // ... (Keep existing _showAddRoomDialog and other helpers but styled if needed.
+  // For brevity I'm keeping the logic but compacting it in the replacement or reusing existing if I didn't delete them.
+  // I will include the dialog methods to ensure they are present)
+
+  void _showAddRoomDialog(BuildContext context, RoomViewModel roomVM) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black87,
+      transitionDuration: const Duration(milliseconds: 300),
+      pageBuilder: (context, anim1, anim2) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E2C),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Create or Join",
+                      style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  _buildDialogButton(
+                      icon: Icons.add_circle_outline,
+                      text: "Create New Room",
+                      color: Colors.deepPurple,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showCreateRoomInput(context, roomVM);
+                      }),
+                  const SizedBox(height: 10),
+                  _buildDialogButton(
+                      icon: Icons.login_rounded,
+                      text: "Join Existing Room",
+                      color: Colors.teal,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showJoinRoomInput(context);
+                      }),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+            position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
+                .animate(
+                    CurvedAnimation(parent: anim1, curve: Curves.easeOutBack)),
+            child: child);
+      },
+    );
+  }
+
+  Widget _buildDialogButton(
+      {required IconData icon,
+      required String text,
+      required Color color,
+      required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(15),
       child: Container(
-        height: size.height * 0.35,
-        width: size.width,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(size.width * 0.05),
-        ),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onTap: () => Get.back(),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-            ),
-            const Spacer(),
-            Container(
-              width: size.width * 0.68,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.02),
-                border: Border.all(
-                  color: Theme.of(Get.context!).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.03),
-                child: TextField(
-                  onChanged: (value) => roomVM.newRoomName.value = value,
-                  cursorColor: Colors.amber,
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: color.withOpacity(0.5))),
+        child: Row(children: [
+          Icon(icon, color: color.withOpacity(0.8)),
+          const SizedBox(width: 15),
+          Text(text,
+              style: GoogleFonts.outfit(color: Colors.white, fontSize: 16)),
+          const Spacer(),
+          const Icon(Icons.arrow_forward_rounded,
+              color: Colors.white30, size: 18)
+        ]),
+      ),
+    );
+  }
+
+  void _showCreateRoomInput(BuildContext context, RoomViewModel roomVM) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+              color: const Color(0xFF1E1E2C),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.white12)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("New Room",
+                  style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              TextField(
+                  onChanged: (val) => roomVM.newRoomName.value = val,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Room name',
-                    hintStyle: TextStyle(
-                      color: Theme.of(Get.context!).colorScheme.primary,
-                    ),
-                  ),
-                  style: TextStyle(
-                    color: Theme.of(
-                      Get.context!,
-                    ).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: size.height * 0.02),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Private Room",
-                  style: TextStyle(
-                    color: Theme.of(
-                      Get.context!,
-                    ).colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Obx(
-                  () => Switch(
+                      hintText: "Enter room name...",
+                      hintStyle: const TextStyle(color: Colors.white38),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.05),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none))),
+              const SizedBox(height: 15),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text("Private Room",
+                    style: GoogleFonts.outfit(color: Colors.white70)),
+                Obx(() => Switch(
                     value: roomVM.isPrivateRoom.value,
-                    onChanged: (_) => roomVM.togglePrivate(),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: size.height * 0.02),
-            Obx(
-              () => roomVM.isLoading.value
-                  ? const CircularProgressIndicator()
-                  : RoundedButtonWidget(
-                      onPress: () async {
+                    onChanged: (val) => roomVM.togglePrivate(),
+                    activeColor: Colors.deepPurple))
+              ]),
+              const SizedBox(height: 20),
+              SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15))),
+                      onPressed: () async {
                         await roomVM.createRoom();
                         Get.back();
                       },
-                      title: 'Create',
-                      buttonColor: Theme.of(
-                        Get.context!,
-                      ).colorScheme.onPrimaryContainer,
-                      textColor: Theme.of(
-                        Get.context!,
-                      ).colorScheme.primaryContainer,
-                    ),
-            ),
-            const Spacer(),
-          ],
+                      child: Text("Create Room",
+                          style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)))),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // join existing dialog Widget
-  static Widget joinexistingroomWidget(Size size, BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.all(size.width * 0.1),
-      child: Container(
-        height: size.height * 0.35,
-        width: size.width,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondaryContainer,
-          borderRadius: BorderRadius.circular(size.width * 0.05),
-        ),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-            ),
-            const Spacer(),
-            Container(
-              width: size.width * 0.68,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(size.width * 0.02),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.03),
-                child: TextField(
-                  cursorColor: Colors.amber,
+  void _showJoinRoomInput(BuildContext context) {
+    final TextEditingController joinController = TextEditingController();
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+              color: const Color(0xFF1E1E2C),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.white12)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Join Room",
+                  style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              TextField(
+                  controller: joinController,
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Room url...',
-                    hintStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: size.height * 0.06),
-            RoundedButtonWidget(
-              onPress: () {},
-              title: 'Join room',
-              buttonColor: Theme.of(context).colorScheme.onPrimaryContainer,
-              textColor: Theme.of(context).colorScheme.primaryContainer,
-            ),
-            const Spacer(),
-          ],
+                      hintText: "Enter room ID...",
+                      hintStyle: const TextStyle(color: Colors.white38),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.05),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none))),
+              const SizedBox(height: 20),
+              SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15))),
+                      onPressed: () {
+                        Get.back();
+                        roomVM.joinRoom(joinController.text.trim());
+                      },
+                      child: Text("Join Room",
+                          style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)))),
+            ],
+          ),
         ),
       ),
     );

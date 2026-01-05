@@ -1,22 +1,21 @@
 {
   "project_info": {
-    "project_number": "212964755504",
-    "firebase_url": "https://school-fee7a-default-rtdb.firebaseio.com",
-    "project_id": "school-fee7a",
-    "storage_bucket": "school-fee7a.appspot.com"
+    "project_number": "389082625514",
+    "project_id": "bricks-store",
+    "storage_bucket": "bricks-store.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:ccd95e91030b3db81245f5",
+        "mobilesdk_app_id": "1:389082625514:android:db8f0b7c658e964ef52e93",
         "android_client_info": {
-          "package_name": "Chat.Box"
+          "package_name": "com.example.bricks_store"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
+          "current_key": "AIzaSyAKp4r8g7NoImV8rC6M2_999OEnDmrWZKc"
         }
       ],
       "services": {
@@ -27,102 +26,7 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:22cde770779ce48a1245f5",
-        "android_client_info": {
-          "package_name": "com.android.application"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:ca10cec21dfbe9c61245f5",
-        "android_client_info": {
-          "package_name": "com.example.chatapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:772caeff8b43fc011245f5",
-        "android_client_info": {
-          "package_name": "com.example.chatappp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:b4f667d9bf2f9ceb1245f5",
-        "android_client_info": {
-          "package_name": "com.example.chatbox2"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:50355040b466a8b41245f5",
-        "android_client_info": {
-          "package_name": "com.example.chathubfinalapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:38739d328497b5451245f5",
+        "mobilesdk_app_id": "1:389082625514:android:45063567ddda8a7ef52e93",
         "android_client_info": {
           "package_name": "com.example.final_project"
         }
@@ -130,216 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:551df00f49a049f71245f5",
-        "android_client_info": {
-          "package_name": "com.example.flutter_application_1"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:14fb12945b84a8e71245f5",
-        "android_client_info": {
-          "package_name": "com.example.flutter_application_10"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:e0a5a31a96aa64261245f5",
-        "android_client_info": {
-          "package_name": "com.example.flutter_application_11"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:593fa06adb8eea541245f5",
-        "android_client_info": {
-          "package_name": "com.example.flutter_application_3"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:b8481780b1d8cb331245f5",
-        "android_client_info": {
-          "package_name": "com.example.flutter_application_8"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:7f03b9f3b93535941245f5",
-        "android_client_info": {
-          "package_name": "com.example.google_maps"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:075833a85ecb4b531245f5",
-        "android_client_info": {
-          "package_name": "com.example.mehakchathub"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:e21ec3ae36e34bc01245f5",
-        "android_client_info": {
-          "package_name": "com.example.mychatappfinal"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:13c465a3d8c54c941245f5",
-        "android_client_info": {
-          "package_name": "com.example.practice"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:115fafb9e50c09351245f5",
-        "android_client_info": {
-          "package_name": "com.example.wani_chatting_app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:212964755504:android:163d84e045cae1a61245f5",
-        "android_client_info": {
-          "package_name": "com.techaventus.my"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDVlxMYbANW67wXQ0-J4_-WjqCJA6IEJwc"
+          "current_key": "AIzaSyAKp4r8g7NoImV8rC6M2_999OEnDmrWZKc"
         }
       ],
       "services": {

@@ -50,17 +50,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: editprofileVM.nameController.value,
                               focusNode: editprofileVM.nameFocusNode.value,
                               cursorColor: Colors.amber,
-                              style:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
                               decoration: InputDecoration(
-                                hintText: StaticData.mymodel?.name ?? 'Your name',
-                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                hintText:
+                                    StaticData.mymodel?.name ?? 'Your name',
+                                hintStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                               ),
                             )),
@@ -71,17 +86,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: editprofileVM.emailController.value,
                               focusNode: editprofileVM.emailFocusNode.value,
                               cursorColor: Colors.amber,
-                              style: TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
                               decoration: InputDecoration(
-                                hintText: StaticData.mymodel?.email ?? 'Your email',
-                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                hintText:
+                                    StaticData.mymodel?.email ?? 'Your email',
+                                hintStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide: BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                               ),
                             )),
@@ -89,28 +119,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                         // ---------------- Password ----------------
                         Obx(() => TextFormField(
-                              controller: editprofileVM.passwordController.value,
+                              controller:
+                                  editprofileVM.passwordController.value,
                               focusNode: editprofileVM.passwordFocusNode.value,
                               cursorColor: Colors.amber,
                               obscureText: _obscurePassword,
-                              style: TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
                               decoration: InputDecoration(
                                 hintText: 'Enter new password',
-                                hintStyle:  TextStyle(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                hintStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer),
                                 enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide: BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                                 focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(width * 0.025),
-                                  borderSide:  BorderSide(color:Theme.of(context).colorScheme.onPrimaryContainer),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.025),
+                                  borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_off
                                         : Icons.visibility,
-                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer,
                                   ),
                                   onPressed: () {
                                     setState(() {
