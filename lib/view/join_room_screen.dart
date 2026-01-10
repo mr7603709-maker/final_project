@@ -1,6 +1,9 @@
+import 'package:final_project/customwidget/button_widget.dart';
+import 'package:final_project/viewmodel/room_model/joinroom_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:get/get.dart';
 import 'dart:ui';
 
 class JoinRoomScreen extends StatefulWidget {
@@ -12,6 +15,7 @@ class JoinRoomScreen extends StatefulWidget {
 
 class _JoinRoomScreenState extends State<JoinRoomScreen> {
   final TextEditingController _controller = TextEditingController();
+  final JoinRoomViewModel joinRoomVM = Get.put(JoinRoomViewModel());
 
   @override
   void dispose() {
@@ -76,7 +80,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
               ),
             )
                 .animate()
-                .scale(duration: 2.seconds, curve: Curves.easeInOut)
+                .scale(duration: 2.ms, curve: Curves.easeInOut)
                 .fadeIn(),
           ),
 
@@ -143,7 +147,7 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                                     border: InputBorder.none,
                                     contentPadding: const EdgeInsets.symmetric(
                                         horizontal: 20, vertical: 16),
-                                    hintText: 'https://dani.to/room...',
+                                    hintText: 'https://playzone.to/room...',
                                     hintStyle: TextStyle(color: Colors.white30),
                                     suffixIcon: IconButton(
                                       icon: const Icon(Icons.paste_rounded,
@@ -166,31 +170,15 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                               const SizedBox(height: 30),
 
                               // Join Button
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    // Handle join logic
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blueAccent,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    elevation: 5,
-                                    shadowColor:
-                                        Colors.blueAccent.withOpacity(0.4),
-                                  ),
-                                  child: const Text(
-                                    "Join Room",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16),
-                                  ),
-                                ),
+                              RoundedButtonWidget(
+                                title: 'Join room',
+                                buttonColor: Colors.blue,
+                                onPress: () {
+                                  joinRoomVM.joinRoomByLink(
+                                    link: _controller.text,
+                                    context: context,
+                                  );
+                                },
                               )
                                   .animate()
                                   .fadeIn(delay: 400.ms)

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/model/room_model_class.dart';
 import 'package:final_project/model/static_data.dart';
 import 'package:final_project/view/video_player_screen.dart';
+import 'package:final_project/viewmodel/room_model/share_link_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:get/get.dart';
@@ -19,6 +21,7 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
   final TextEditingController msgController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ScrollController scrollController = ScrollController();
+  final RoomLinkViewModel linkVM = Get.put(RoomLinkViewModel());
 
   String roomId = "";
   String roomName = "";
@@ -40,10 +43,23 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
   @override
   void initState() {
     super.initState();
+
+    // Get arguments from previous screen
     final args = Get.arguments;
     if (args != null && args is Map) {
       roomId = args['roomId'] ?? "";
       roomName = args['roomName'] ?? "Room Chat";
+
+      // Set current room in RoomLinkViewModel
+      linkVM.currentRoom.value = RoomModel(
+        roomId: roomId,
+        name: roomName,
+        creatorId: args['creatorId'] ?? '',
+        creatorName: args['creatorName'] ?? '',
+        isPrivate: args['isPrivate'] ?? false,
+        members:
+            args['members'] != null ? List<String>.from(args['members']) : [],
+      );
     }
 
     if (roomId.isNotEmpty) {
@@ -61,8 +77,7 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
 
       var roomData = snapshot.data() as Map<String, dynamic>;
       String? activeVideo = roomData['activeVideo'];
-      String newVideoId =
-          YoutubePlayer.convertUrlToId(activeVideo ?? "") ?? "";
+      String newVideoId = YoutubePlayer.convertUrlToId(activeVideo ?? "") ?? "";
 
       if (newVideoId.isNotEmpty) {
         if (newVideoId != currentVideoId) {
@@ -174,15 +189,18 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
               children: [
                 // AppBar
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.05),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                    borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(20)),
                   ),
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white70),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                            color: Colors.white70),
                         onPressed: () => Get.back(),
                       ),
                       const SizedBox(width: 10),
@@ -191,7 +209,8 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                         backgroundColor: Colors.deepPurple,
                         child: Text(
                           roomName.isNotEmpty ? roomName[0].toUpperCase() : 'R',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -201,12 +220,33 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                           children: [
                             Text(
                               roomName,
-                              style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Text("Active Room", style: GoogleFonts.outfit(color: Colors.greenAccent, fontSize: 12)),
+                            Text("Active Room",
+                                style: GoogleFonts.outfit(
+                                    color: Colors.greenAccent, fontSize: 12)),
                           ],
                         ),
+                      ),
+                      IconButton(
+                          onPressed: () {
+                            linkVM.shareRoomLink(); // opens share dialog
+                          },
+                          icon: Icon(
+                            Icons.share,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                          )),
+                      IconButton(
+                        onPressed: () {
+                          linkVM.copyRoomLink(); // copies link to clipboard
+                        },
+                        icon: Icon(Icons.link, color: Colors.white),
                       ),
                     ],
                   ),
@@ -232,7 +272,10 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                           child: IconButton(
                             icon: const Icon(Icons.close, color: Colors.white),
                             onPressed: () {
-                              _firestore.collection('finalrooms').doc(roomId).update({'activeVideo': FieldValue.delete()});
+                              _firestore
+                                  .collection('finalrooms')
+                                  .doc(roomId)
+                                  .update({'activeVideo': FieldValue.delete()});
                             },
                           ),
                         ),
@@ -262,10 +305,12 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
 
                         return ListView.builder(
                           controller: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 20),
                           itemCount: snapshot.data!.docs.length,
                           itemBuilder: (context, index) {
-                            final data = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                            final data = snapshot.data!.docs[index].data()
+                                as Map<String, dynamic>;
                             return _buildMessageBubble(data);
                           },
                         );
@@ -280,8 +325,10 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.4),
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
-                    border: Border(top: BorderSide(color: Colors.white.withOpacity(0.1))),
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(25)),
+                    border: Border(
+                        top: BorderSide(color: Colors.white.withOpacity(0.1))),
                   ),
                   child: Row(
                     children: [
@@ -299,7 +346,8 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               hintText: "Type a message...",
-                              hintStyle: GoogleFonts.outfit(color: Colors.white38),
+                              hintStyle:
+                                  GoogleFonts.outfit(color: Colors.white38),
                             ),
                           ),
                         ),
@@ -309,8 +357,10 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                         onTap: () => _showVideoInput(context),
                         child: Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                          child: const Icon(Icons.movie_creation_outlined, color: Colors.white, size: 20),
+                          decoration: const BoxDecoration(
+                              color: Colors.redAccent, shape: BoxShape.circle),
+                          child: const Icon(Icons.movie_creation_outlined,
+                              color: Colors.white, size: 20),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -319,10 +369,12 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: const BoxDecoration(
-                            gradient: LinearGradient(colors: [Colors.deepPurple, Colors.blue]),
+                            gradient: LinearGradient(
+                                colors: [Colors.deepPurple, Colors.blue]),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                          child: const Icon(Icons.send_rounded,
+                              color: Colors.white, size: 20),
                         ),
                       ),
                     ],
@@ -347,14 +399,20 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             if (!isMe)
               Padding(
                 padding: const EdgeInsets.only(left: 12, bottom: 4),
-                child: Text(senderName, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text(senderName,
+                    style: GoogleFonts.outfit(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold)),
               ),
             if (type == 'video')
               GestureDetector(
@@ -365,7 +423,8 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.deepPurpleAccent.withOpacity(0.5)),
+                    border: Border.all(
+                        color: Colors.deepPurpleAccent.withOpacity(0.5)),
                     image: DecorationImage(
                       image: NetworkImage(
                         YoutubePlayer.convertUrlToId(message) != null
@@ -379,30 +438,47 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                   alignment: Alignment.center,
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                    decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle),
+                    child: const Icon(Icons.play_arrow_rounded,
+                        color: Colors.white, size: 40),
                   ),
                 ),
               )
             else
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: const Radius.circular(20),
                     topRight: const Radius.circular(20),
-                    bottomLeft: isMe ? const Radius.circular(20) : const Radius.circular(0),
-                    bottomRight: isMe ? const Radius.circular(0) : const Radius.circular(20),
+                    bottomLeft: isMe
+                        ? const Radius.circular(20)
+                        : const Radius.circular(0),
+                    bottomRight: isMe
+                        ? const Radius.circular(0)
+                        : const Radius.circular(20),
                   ),
                   gradient: isMe
-                      ? const LinearGradient(colors: [Colors.deepPurple, Colors.indigo])
-                      : LinearGradient(colors: [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.15)]),
+                      ? const LinearGradient(
+                          colors: [Colors.deepPurple, Colors.indigo])
+                      : LinearGradient(colors: [
+                          Colors.white.withOpacity(0.15),
+                          Colors.white.withOpacity(0.15)
+                        ]),
                 ),
-                child: Text(message, style: GoogleFonts.outfit(color: Colors.white, fontSize: 15)),
+                child: Text(message,
+                    style:
+                        GoogleFonts.outfit(color: Colors.white, fontSize: 15)),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 4, left: 4, right: 4),
-              child: Text(time != null ? formatTime(time.toDate()) : "Sending...", style: GoogleFonts.outfit(color: Colors.white30, fontSize: 10)),
+              child: Text(
+                  time != null ? formatTime(time.toDate()) : "Sending...",
+                  style:
+                      GoogleFonts.outfit(color: Colors.white30, fontSize: 10)),
             ),
           ],
         ),
@@ -425,7 +501,11 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Watch Together", style: GoogleFonts.outfit(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              Text("Watch Together",
+                  style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               TextField(
                 controller: videoUrlController,
@@ -435,14 +515,17 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                   hintStyle: const TextStyle(color: Colors.white38),
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.05),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15)),
                 ),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, padding: const EdgeInsets.symmetric(vertical: 15)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 15)),
                   onPressed: () {
                     if (videoUrlController.text.isNotEmpty) {
                       _firestore.collection('finalrooms').doc(roomId).update({
@@ -452,7 +535,9 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                       Get.back();
                     }
                   },
-                  child: const Text("Start Watching", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text("Start Watching",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
             ],

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/model/static_data.dart';
 import 'package:final_project/resources/route_name.dart';
+import 'package:final_project/viewmodel/room_model/joinroom_viewmodel.dart';
 import 'package:final_project/viewmodel/room_model/room_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -19,6 +20,7 @@ class _RoomScreenState extends State<RoomScreen> {
   final RoomViewModel roomVM = Get.put(RoomViewModel());
   final PageController _pageController = PageController(viewportFraction: 0.85);
   final ValueNotifier<int> _currentPage = ValueNotifier(0);
+  final JoinRoomViewModel joinRoomVM = Get.put(JoinRoomViewModel());
 
   // Curated Hindi Songs
   final List<Map<String, String>> _trendingSongs = [
@@ -310,39 +312,38 @@ class _RoomScreenState extends State<RoomScreen> {
     );
   }
 
- void _playVideo(BuildContext context, String videoId) {
-  final YoutubePlayerController controller = YoutubePlayerController(
-    initialVideoId: videoId,
-    flags: const YoutubePlayerFlags(
-      autoPlay: true,
-      mute: false,
-      controlsVisibleAtStart: true,
-      hideControls: false,
-      enableCaption: true,
-    ),
-  );
+  void _playVideo(BuildContext context, String videoId) {
+    final YoutubePlayerController controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        controlsVisibleAtStart: true,
+        hideControls: false,
+        enableCaption: true,
+      ),
+    );
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.zero,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: YoutubePlayer(
-            controller: controller,
-            showVideoProgressIndicator: true,
-            onReady: () {
-              // Optional: do something when ready
-            },
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: YoutubePlayer(
+              controller: controller,
+              showVideoProgressIndicator: true,
+              onReady: () {
+                // Optional: do something when ready
+              },
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Widget _buildMicroFilter(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
@@ -626,7 +627,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   controller: joinController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                      hintText: "Enter room ID...",
+                      hintText: "https://playzone.to/room...",
                       hintStyle: const TextStyle(color: Colors.white38),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.05),
@@ -643,8 +644,11 @@ class _RoomScreenState extends State<RoomScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15))),
                       onPressed: () {
+                        joinRoomVM.joinRoomByLink(
+                          link: joinController .text,
+                          context: context,
+                        );
                         Get.back();
-                        roomVM.joinRoom(joinController.text.trim());
                       },
                       child: Text("Join Room",
                           style: GoogleFonts.outfit(

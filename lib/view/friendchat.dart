@@ -144,7 +144,7 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
-                    vertical: 10,
+                    vertical: 10
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.05),
@@ -169,7 +169,7 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
                             ? Text("?", style: TextStyle(color: Colors.white))
                             : null,
                       ),
-                      const SizedBox(width: 10),
+                       SizedBox(width:width*0.025),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -177,7 +177,7 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
                             widget.model.friendname ?? "Unknown",
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize:width*0.035,
                               color: Colors.white,
                             ),
                           ),
@@ -199,6 +199,7 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
                                     width: 8,
                                     height: 8,
                                     decoration: BoxDecoration(
+                                    
                                       shape: BoxShape.circle,
                                       color: status == "Online"
                                           ? Colors.greenAccent
@@ -359,13 +360,13 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
     return Container(
       width: size.width,
       alignment: isMyMessage ? Alignment.centerRight : Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
       child: Column(
         crossAxisAlignment:
             isMyMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
             margin: isMyMessage
                 ? const EdgeInsets.only(left: 50)
                 : const EdgeInsets.only(right: 50),
