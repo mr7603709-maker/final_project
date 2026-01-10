@@ -136,13 +136,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       Filter.or(
                         Filter("userId", isEqualTo: currentUserId),
                         Filter("friendId", isEqualTo: currentUserId),
-                        // Note: The original code only checked userId == currentUserId, assuming unidirectional or bidirectional duplication.
-                        // I'll stick to original logic: "userId" == currentUserId. But typically friends are bidirectional.
+                       
                       ),
                     )
-                    // Original query was: .where("userId", isEqualTo: currentUserId)
-                    // If the friend system duplicates entries (A->B and B->A), then userId==currentUserId is correct.
-                    // Assuming that model based on previous code.
+                  
                     .where("userId", isEqualTo: currentUserId)
                     .snapshots(),
                 builder: (context, snapshot) {
@@ -195,10 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       final friendId = friendmodel.friendId!;
 
                       // Generate ChatRoomID
-                      // Original logic: sorted
-                      // I implemented logic in chatRoomId helper above, but let's check previous logic.
-                      // Previous logic: users.sort(); return "${users[0]}_${users[1]}";
-                      // I should use the SAME logic to ensure I find the existing room.
+                     
                       List<String> users = [currentUserId!, friendId];
                       users.sort();
                       final chatRoomIdStr = "${users[0]}_${users[1]}";
@@ -290,13 +284,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                       if (unreadCount > 0)
                                         Positioned(
                                           right: 0,
-                                          top: 0,
+                                          bottom: 0,
                                           child: Container(
                                             padding: const EdgeInsets.all(
                                               6,
                                             ),
                                             decoration: const BoxDecoration(
-                                              color: Colors.redAccent,
+                                              color: Colors.green,
                                               shape: BoxShape.circle,
                                             ),
                                             child: Text(
@@ -353,7 +347,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 5),
+                                         SizedBox(height:height*0.002),
                                         Text(
                                           lastMessage,
                                           maxLines: 1,

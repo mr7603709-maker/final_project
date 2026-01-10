@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String videoUrl;
@@ -15,24 +15,25 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    // Extract video ID from URL
-    String videoId =
-        YoutubePlayerController.convertUrlToId(widget.videoUrl) ?? "";
 
-    _controller = YoutubePlayerController.fromVideoId(
-      videoId: videoId,
-      autoPlay: false,
-      params: const YoutubePlayerParams(
-        showControls: true,
-        showFullscreenButton: true,
-        strictRelatedVideos: true,
+    // Extract video ID from URL
+    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
+
+    _controller = YoutubePlayerController(
+      initialVideoId: videoId ?? '',
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+        controlsVisibleAtStart: true,
+        mute: false,
+        enableCaption: true,
+        isLive: false,
       ),
     );
   }
 
   @override
   void dispose() {
-    _controller.close();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -48,12 +49,12 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
       ),
       body: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: YoutubePlayer(
-            controller: _controller,
-            aspectRatio: 16 / 9,
-          ),
+        child: YoutubePlayer(
+          controller: _controller,
+          showVideoProgressIndicator: true,
+          onReady: () {
+            // Optional: do something when player is ready
+          },
         ),
       ),
     );

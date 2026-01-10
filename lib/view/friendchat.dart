@@ -93,14 +93,13 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final height = MediaQuery.of(context).size.height; // Unused
-    // final width = MediaQuery.of(context).size.width; // Unused
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.black, // Dark background base
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Background Gradient (Optional, similar to other screens)
           Positioned(
             top: -100,
             left: -100,
@@ -137,7 +136,6 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
               ),
             ),
           ),
-
           SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -278,7 +276,7 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
 
                 // -------------------- MESSAGE INPUT --------------------
                 Container(
-                  padding: const EdgeInsets.all(15),
+                  padding:  EdgeInsets.all(width*0.035),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     border: Border(top: BorderSide(color: Colors.white10)),
@@ -286,24 +284,6 @@ class _FriendchatScreenState extends State<FriendchatScreen> {
                   child: SafeArea(
                     child: Row(
                       children: [
-                        // Button to send image/file (Placeholder)
-                        GestureDetector(
-                          onTap: () {}, // Implement file picker
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
                         // Text Field
                         Expanded(
                           child: Container(

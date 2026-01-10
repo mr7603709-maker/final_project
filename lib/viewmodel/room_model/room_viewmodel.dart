@@ -9,145 +9,131 @@ class RoomViewModel extends GetxController {
   RxBool isPrivateRoom = false.obs;
   RxBool isLoading = false.obs;
 
-  // room type filter
+  // filter
   RxString roomType = 'public'.obs;
 
-  void setPublic() {
-    roomType.value = 'public';
+  // data
+  RxList<RoomModel> allRooms = <RoomModel>[].obs;
+  RxList<RoomModel> filteredRooms = <RoomModel>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadRooms();
+    ever(roomType, (_) => filterRooms());
   }
 
-  void setPrivate() {
-    roomType.value = 'private';
-  }
+  void setPublic() => roomType.value = 'public';
+  void setPrivate() => roomType.value = 'private';
 
-  // RxList of RoomModel
-  RxList<RoomModel> rooms = <RoomModel>[].obs;
-
-  // Toggle private room
   void togglePrivate() {
     isPrivateRoom.value = !isPrivateRoom.value;
   }
 
-  // Load rooms from Firestore
+  // ================= LOAD ROOMS =================
   Future<void> loadRooms() async {
-    final userId = StaticData.mymodel?.userId;
-    if (userId == null) return;
-
     try {
-      // 🔹 Collection changed to 'finalrooms'
-      final querySnapshot =
+      final snapshot =
           await FirebaseFirestore.instance.collection('finalrooms').get();
 
-      rooms.value = querySnapshot.docs.map((doc) {
-        final data = doc.data();
+      allRooms.assignAll(
+        snapshot.docs.map((doc) {
+          final data = doc.data();
 
-        return RoomModel(
-          roomId: doc.id,
-          name: data['roomName'] ?? '',
-          creatorId: data['adminId'] ?? '',
-          creatorName: data['adminName'] ?? '',
-          isPrivate: data['private'] ?? false,
-          members: data['members'] != null
-              ? List<String>.from((data['members'] as List<dynamic>))
-              : [],
-        );
-      }).toList();
+          return RoomModel(
+            roomId: doc.id,
+            name: data['roomName'] ?? '',
+            creatorId: data['adminId'] ?? '',
+            creatorName: data['adminName'] ?? '',
+            isPrivate: data['private'] ?? false,
+            members: data['members'] != null
+                ? List<String>.from(data['members'])
+                : <String>[],
+          );
+        }).toList(),
+      );
+
+      filterRooms();
     } catch (e) {
       debugPrint("❌ Error loading rooms: $e");
     }
   }
 
-  // Create room
+  // ================= FILTER =================
+  void filterRooms() {
+    if (roomType.value == 'public') {
+      filteredRooms.assignAll(
+        allRooms.where((r) => r.isPrivate == false),
+      );
+    } else {
+      filteredRooms.assignAll(
+        allRooms.where((r) => r.isPrivate == true),
+      );
+    }
+  }
+
+  // ================= CREATE ROOM =================
   Future<void> createRoom() async {
     if (newRoomName.value.trim().isEmpty) return;
 
-    isLoading.value = true;
     try {
-      final currentUser = StaticData.mymodel;
-      if (currentUser == null) return;
+      final user = StaticData.mymodel;
+      if (user == null || user.userId == null) return;
 
-      // Ensure userId is non-null before adding to members list
-      final membersList = <String>[];
-      if (currentUser.userId != null && currentUser.userId!.isNotEmpty) {
-        membersList.add(currentUser.userId!);
-      }
-
-      // 🔹 Collection changed to 'finalrooms'
-      final docRef =
+      final doc =
           await FirebaseFirestore.instance.collection('finalrooms').add({
         'roomName': newRoomName.value,
-        'adminId': currentUser.userId ?? '',
-        'adminName': currentUser.name ?? '',
+        'adminId': user.userId!,
+        'adminName': user.name ?? '',
         'private': isPrivateRoom.value,
-        'members': membersList,
+        'members': [user.userId!],
         'lastMsg': '',
       });
 
-      // Update local list
-      rooms.insert(
+      allRooms.insert(
         0,
         RoomModel(
-          roomId: docRef.id,
+          roomId: doc.id,
           name: newRoomName.value,
-          creatorId: currentUser.userId ?? '',
-          creatorName: currentUser.name ?? '',
+          creatorId: user.userId!,
+          creatorName: user.name ?? '',
           isPrivate: isPrivateRoom.value,
-          members: membersList,
+          members: [user.userId!],
         ),
       );
 
-      // Reset input
+      filterRooms();
+
       newRoomName.value = '';
       isPrivateRoom.value = false;
     } catch (e) {
-      debugPrint("❌ Room create error: $e");
-    } finally {
-      isLoading.value = false;
+      debugPrint("❌ Create room error: $e");
     }
   }
 
-  // Join room
-  Future<void> joinRoom(String roomIdOrCode) async {
-    if (roomIdOrCode.trim().isEmpty) return;
-
-    isLoading.value = true;
+  // ================= JOIN ROOM =================
+  Future<void> joinRoom(String roomId) async {
     try {
-      final currentUser = StaticData.mymodel;
-      if (currentUser == null) return;
+      final user = StaticData.mymodel;
+      if (user == null || user.userId == null) return;
 
-      // 1. Check if room exists
-      final docRef =
-          FirebaseFirestore.instance.collection('finalrooms').doc(roomIdOrCode);
-      final docSnap = await docRef.get();
+      final doc =
+          FirebaseFirestore.instance.collection('finalrooms').doc(roomId);
 
-      if (!docSnap.exists) {
-        Get.snackbar("Error", "Room not found",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.redAccent,
-            colorText: Colors.white);
+      final snap = await doc.get();
+      if (!snap.exists) {
+        Get.snackbar("Error", "Room not found");
         return;
       }
 
-      // 2. Add user to members list
-      await docRef.update({
-        'members': FieldValue.arrayUnion([currentUser.userId])
+      await doc.update({
+        'members': FieldValue.arrayUnion([user.userId!])
       });
 
-      Get.snackbar("Success", "Joined room successfully!",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white);
-
-      // Refresh list
       await loadRooms();
     } catch (e) {
       debugPrint("❌ Join room error: $e");
-      Get.snackbar("Error", "Failed to join room",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.redAccent,
-          colorText: Colors.white);
-    } finally {
-      isLoading.value = false;
     }
   }
 }
+  

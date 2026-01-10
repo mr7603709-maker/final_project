@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({super.key});
@@ -229,15 +229,18 @@ class _RoomScreenState extends State<RoomScreen> {
                           fontWeight: FontWeight.bold)),
                   const Spacer(),
                   Obx(() => _buildMicroFilter(
-                      "Public",
-                      !roomVM.isPrivateRoom.value,
-                      () => roomVM
-                          .setPublic())), // Assuming toggle login in new VM method or reusing
+                        "Public",
+                        roomVM.roomType.value ==
+                            'public', // Public button selected if roomType is 'public'
+                        () => roomVM.setPublic(),
+                      )),
                   const SizedBox(width: 10),
                   Obx(() => _buildMicroFilter(
-                      "Private",
-                      roomVM.roomType.value == 'private',
-                      () => roomVM.setPrivate())),
+                        "Private",
+                        roomVM.roomType.value ==
+                            'private', // Private button selected if roomType is 'private'
+                        () => roomVM.setPrivate(),
+                      )),
                 ],
               ),
             ),
@@ -258,40 +261,46 @@ class _RoomScreenState extends State<RoomScreen> {
                     return _buildEmptyState();
                   }
 
-                  final filteredRooms = snapshot.data!.docs.where((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    final bool isPrivate = data['private'] ?? false;
-                    final String adminId = data['adminId'] ?? '';
-
-                    if (roomVM.roomType.value == 'public') {
-                      return !isPrivate;
-                    } else {
+                  // Wrap the ListView in Obx so it reacts to roomVM.roomType changes
+                  return Obx(() {
+                    final filteredRooms = snapshot.data!.docs.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>? ?? {};
+                      final bool isPrivate = data['private'] ?? false;
+                      final String adminId = data['adminId'] ?? '';
                       final members = data['members'] != null
                           ? List<String>.from(
                               (data['members'] as List<dynamic>))
-                          : [];
-                      return isPrivate &&
-                          (adminId == currentUserId ||
-                              members.contains(currentUserId));
-                    }
-                  }).toList();
+                          : <String>[];
 
-                  if (filteredRooms.isEmpty) return _buildEmptyState();
+                      if (roomVM.roomType.value == 'public') {
+                        return !isPrivate;
+                      } else {
+                        final currentUserId = StaticData.mymodel?.userId ?? '';
+                        return isPrivate &&
+                            (adminId == currentUserId ||
+                                members.contains(currentUserId));
+                      }
+                    }).toList();
 
-                  return ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(
-                        bottom: 100, left: 20, right: 20, top: 10),
-                    itemCount: filteredRooms.length,
-                    itemBuilder: (context, index) {
-                      final room = filteredRooms[index];
-                      final roomData = room.data() as Map<String, dynamic>;
-                      return _buildRoomCard(roomData, width, room.id)
-                          .animate(delay: (50 * index).ms)
-                          .slideY(begin: 0.2, end: 0)
-                          .fade();
-                    },
-                  );
+                    if (filteredRooms.isEmpty) return _buildEmptyState();
+
+                    return ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(
+                          bottom: 100, left: 20, right: 20, top: 10),
+                      itemCount: filteredRooms.length,
+                      itemBuilder: (context, index) {
+                        final room = filteredRooms[index];
+                        final roomData =
+                            room.data() as Map<String, dynamic>? ?? {};
+                        return _buildRoomCard(roomData,
+                                MediaQuery.of(context).size.width, room.id)
+                            .animate(delay: (50 * index).ms)
+                            .slideY(begin: 0.2)
+                            .fade();
+                      },
+                    );
+                  });
                 },
               ),
             ),
@@ -301,28 +310,39 @@ class _RoomScreenState extends State<RoomScreen> {
     );
   }
 
-  void _playVideo(BuildContext context, String videoId) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final controller = YoutubePlayerController.fromVideoId(
-          videoId: videoId,
-          autoPlay: true,
-          params: const YoutubePlayerParams(
-              showControls: true, showFullscreenButton: true),
-        );
+ void _playVideo(BuildContext context, String videoId) {
+  final YoutubePlayerController controller = YoutubePlayerController(
+    initialVideoId: videoId,
+    flags: const YoutubePlayerFlags(
+      autoPlay: true,
+      mute: false,
+      controlsVisibleAtStart: true,
+      hideControls: false,
+      enableCaption: true,
+    ),
+  );
 
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: YoutubePlayer(controller: controller),
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: YoutubePlayer(
+            controller: controller,
+            showVideoProgressIndicator: true,
+            onReady: () {
+              // Optional: do something when ready
+            },
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   Widget _buildMicroFilter(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
@@ -429,10 +449,6 @@ class _RoomScreenState extends State<RoomScreen> {
       ),
     );
   }
-
-  // ... (Keep existing _showAddRoomDialog and other helpers but styled if needed.
-  // For brevity I'm keeping the logic but compacting it in the replacement or reusing existing if I didn't delete them.
-  // I will include the dialog methods to ensure they are present)
 
   void _showAddRoomDialog(BuildContext context, RoomViewModel roomVM) {
     showGeneralDialog(

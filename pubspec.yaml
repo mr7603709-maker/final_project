@@ -52,7 +52,8 @@ dependencies:
   intl: ^0.18.1
   flutter_animate: ^4.5.0
   google_fonts: ^6.1.0
-  youtube_player_iframe: ^5.2.0
+  youtube_player_flutter: ^9.1.3
+  
 
   
 

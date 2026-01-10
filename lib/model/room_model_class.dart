@@ -2,22 +2,23 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 class RoomModel {
-  String? roomId;
-  String? name;
-  String? creatorId; // admin userId
-  String? creatorName; // admin name
-  bool? isPrivate;
-  List<String>? members;
+  final String roomId;
+  final String name;
+  final String creatorId;      // admin userId
+  final String creatorName;    // admin name
+  final bool isPrivate;
+  final List<String> members;
 
-  RoomModel({
-    this.roomId,
-    this.name,
-    this.creatorId,
-    this.creatorName,
-    this.isPrivate,
-    this.members,
+  const RoomModel({
+    required this.roomId,
+    required this.name,
+    required this.creatorId,
+    required this.creatorName,
+    required this.isPrivate,
+    required this.members,
   });
 
+  /// copyWith
   RoomModel copyWith({
     String? roomId,
     String? name,
@@ -36,8 +37,9 @@ class RoomModel {
     );
   }
 
+  /// Firestore / Map
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'roomId': roomId,
       'name': name,
       'creatorId': creatorId,
@@ -47,23 +49,23 @@ class RoomModel {
     };
   }
 
-  factory RoomModel.fromMap(Map<String, dynamic> map) {
+  factory RoomModel.fromMap(Map<String, dynamic> map, String docId) {
     return RoomModel(
-      roomId: map['roomId'] != null ? map['roomId'] as String : null,
-      name: map['name'] != null ? map['name'] as String : null,
-      creatorId: map['creatorId'] != null ? map['creatorId'] as String : null,
-      creatorName: map['creatorName'] != null ? map['creatorName'] as String : null,
-      isPrivate: map['isPrivate'] != null ? map['isPrivate'] as bool : null,
+      roomId: docId, // 🔥 Firestore doc.id
+      name: map['roomName'] ?? '',
+      creatorId: map['adminId'] ?? '',
+      creatorName: map['adminName'] ?? '',
+      isPrivate: map['private'] ?? false,
       members: map['members'] != null
-          ? List<String>.from((map['members'] as List<dynamic>))
-          : [],
+          ? List<String>.from(map['members'])
+          : <String>[],
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory RoomModel.fromJson(String source) =>
-      RoomModel.fromMap(json.decode(source) as Map<String, dynamic>);
+      RoomModel.fromMap(json.decode(source), '');
 
   @override
   String toString() {
@@ -71,10 +73,11 @@ class RoomModel {
   }
 
   @override
-  bool operator ==(covariant RoomModel other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other.roomId == roomId &&
+    return other is RoomModel &&
+        other.roomId == roomId &&
         other.name == name &&
         other.creatorId == creatorId &&
         other.creatorName == creatorName &&
