@@ -44,6 +44,29 @@ class SignupViewModel extends GetxController {
       return;
     }
 
+    /// ❌ Check if email already exists
+    try {
+      final emailQuery = await FirebaseFirestore.instance
+          .collection("finalUsers")
+          .where("email", isEqualTo: email)
+          .get();
+
+      if (emailQuery.docs.isNotEmpty) {
+        Utils.snackBar(
+          "Email ",
+          "Please change email",
+        );
+        return;
+      }
+    } catch (e) {
+      print("❌ Email check error: $e");
+      Utils.snackBar(
+        "Error",
+        "Unable to verify email. Please try again.",
+      );
+      return;
+    }
+
     try {
       loading.value = true;
 

@@ -144,44 +144,63 @@ class _AddfriendScreenState extends State<AddfriendScreen> {
               _buildSectionHeader("Suggested People"),
               SizedBox(height: height * 0.02),
 
-              // We need a constrained height for this list or use shrinkWrap if list is small.
-              // Since it filters locally, it might be safer to use shrinkWrap or a fixed container if large.
-              // Assuming moderate number of users, shrinkWrap is fine inside SingleChildScrollView.
+              // Load friends to filter out existing friends from suggestions
               StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
-                    .collection("finalUsers")
-                    .where(
-                      "email",
-                      isNotEqualTo: StaticData.mymodel?.email ?? "",
-                    )
+                    .collection("finalfriends")
+                    .where("userId",
+                        isEqualTo: StaticData.mymodel?.userId ?? "")
                     .snapshots(),
-                builder: (context, snapshot) {
-                  if (StaticData.mymodel == null) return const SizedBox();
-                  if (!snapshot.hasData)
+                builder: (context, friendsSnapshot) {
+                  if (!friendsSnapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
-
-                  List<UserData> users = snapshot.data!.docs
-                      .map((doc) => UserData.fromMap(doc.data()))
-                      .where(
-                        (user) =>
-                            user.name != null &&
-                            user.name!.toLowerCase().contains(searchText),
-                      )
-                      .toList();
-
-                  if (users.isEmpty) {
-                    return _buildEmptySection("No users found");
                   }
 
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: users.length,
-                    itemBuilder: (context, index) {
-                      return _buildUserCard(users[index], height, width)
-                          .animate(delay: (50 * index).ms)
-                          .slideY(begin: 0.2, end: 0)
-                          .fade();
+                  // Get list of friend IDs to exclude
+                  Set<String> friendIds = friendsSnapshot.data!.docs
+                      .map((doc) => doc.data()["friendId"] as String?)
+                      .where((id) => id != null)
+                      .cast<String>()
+                      .toSet();
+
+                  return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection("finalUsers")
+                        .where(
+                          "email",
+                          isNotEqualTo: StaticData.mymodel?.email ?? "",
+                        )
+                        .snapshots(),
+                    builder: (context, usersSnapshot) {
+                      if (StaticData.mymodel == null) return const SizedBox();
+                      if (!usersSnapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      List<UserData> users = usersSnapshot.data!.docs
+                          .map((doc) => UserData.fromMap(doc.data()))
+                          .where((user) =>
+                              user.name != null &&
+                              user.name!.toLowerCase().contains(searchText) &&
+                              !friendIds.contains(
+                                  user.userId)) // Exclude existing friends
+                          .toList();
+
+                      if (users.isEmpty) {
+                        return _buildEmptySection("No users found");
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: users.length,
+                        itemBuilder: (context, index) {
+                          return _buildUserCard(users[index], height, width)
+                              .animate(delay: (50 * index).ms)
+                              .slideY(begin: 0.2, end: 0)
+                              .fade();
+                        },
+                      );
                     },
                   );
                 },

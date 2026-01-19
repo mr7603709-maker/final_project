@@ -11,7 +11,7 @@ class Utils{
   static toastMessage(String message){
     Fluttertoast.showToast(
       msg:message,fontSize: 15,
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.green,
       gravity: ToastGravity.TOP
       // textColor: Colors.white
       );

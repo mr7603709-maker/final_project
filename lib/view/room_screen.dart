@@ -390,7 +390,7 @@ class _RoomScreenState extends State<RoomScreen> {
 
     return GestureDetector(
       onTap: () => Get.toNamed(RouteName.chatroomscreen,
-          arguments: {'roomId': roomId, 'roomName': roomName}),
+          arguments: {'roomId': roomId, 'roomName': roomName, 'creatorId': data['adminId'] ?? ''}),
       child: Container(
         margin: const EdgeInsets.only(bottom: 15),
         padding: const EdgeInsets.all(16),

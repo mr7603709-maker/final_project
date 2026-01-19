@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_project/model/room_model_class.dart';
 import 'package:final_project/model/static_data.dart';
 import 'package:final_project/view/video_player_screen.dart';
+import 'package:final_project/viewmodel/room_model/delete_room_viewmodel.dart';
 import 'package:final_project/viewmodel/room_model/share_link_viewmodel.dart';
+import 'package:final_project/viewmodel/room_model/video_sync_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:get/get.dart';
@@ -22,22 +24,43 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ScrollController scrollController = ScrollController();
   final RoomLinkViewModel linkVM = Get.put(RoomLinkViewModel());
+  final RoomDeleteViewModel deleteVM = Get.put(RoomDeleteViewModel());
+
+  late VideoSyncViewModel videoVM;
 
   String roomId = "";
   String roomName = "";
+  String creatorId = "";
+  bool isCurrentUserAdmin = false;
 
   // Video Player
   YoutubePlayerController? _videoController;
   String? currentVideoId;
   StreamSubscription<DocumentSnapshot>? _roomSubscription;
+  
+  // Reactive variable for video state
+  final RxBool _hasVideo = false.obs;
 
   @override
   void dispose() {
     _roomSubscription?.cancel();
+    _videoController?.removeListener(_videoListener);
     _videoController?.dispose();
     msgController.dispose();
     scrollController.dispose();
+    // Dispose reactive variable
+    _hasVideo.close();
     super.dispose();
+  }
+
+  void _videoListener() {
+    if (_videoController == null) return;
+
+    final isPlaying = _videoController!.value.isPlaying;
+    final position = _videoController!.value.position.inSeconds.toDouble();
+
+    // Update Firestore only if the user is controlling the video
+    videoVM.updateState(play: isPlaying, pos: position);
   }
 
   @override
@@ -49,6 +72,29 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
     if (args != null && args is Map) {
       roomId = args['roomId'] ?? "";
       roomName = args['roomName'] ?? "Room Chat";
+      creatorId = args['creatorId'] ?? "";
+
+      // Check admin status for delete functionality
+      deleteVM.checkAdminStatus(creatorId);
+      isCurrentUserAdmin = deleteVM.isAdmin.value;
+      
+      // If not admin initially, try again after a short delay (in case user data loads later)
+      if (!isCurrentUserAdmin) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          deleteVM.checkAdminStatus(creatorId);
+          if (deleteVM.isAdmin.value && mounted) {
+            setState(() {
+              isCurrentUserAdmin = true;
+            });
+          }
+        });
+      }
+      print("DEBUG: isCurrentUserAdmin set to: $isCurrentUserAdmin");
+      
+      // Trigger rebuild to show admin-specific UI
+      if (mounted) {
+        setState(() {});
+      }
 
       // Set current room in RoomLinkViewModel
       linkVM.currentRoom.value = RoomModel(
@@ -62,7 +108,9 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
       );
     }
 
+    // Only setup video sync if roomId exists
     if (roomId.isNotEmpty) {
+      videoVM = Get.put(VideoSyncViewModel(roomId), tag: roomId);
       _listenToRoomUpdates();
     }
   }
@@ -79,37 +127,93 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
       String? activeVideo = roomData['activeVideo'];
       String newVideoId = YoutubePlayer.convertUrlToId(activeVideo ?? "") ?? "";
 
-      if (newVideoId.isNotEmpty) {
-        if (newVideoId != currentVideoId) {
-          currentVideoId = newVideoId;
-
-          if (_videoController != null) {
-            _videoController!.load(newVideoId);
-          } else {
-            _videoController = YoutubePlayerController(
-              initialVideoId: newVideoId,
-              flags: const YoutubePlayerFlags(
-                autoPlay: false,
-                mute: false,
-                controlsVisibleAtStart: true,
-                hideControls: false,
-                enableCaption: true,
-              ),
-            );
-          }
-
-          if (mounted) setState(() {});
-        }
-      } else {
+      // No active video
+      if (newVideoId.isEmpty) {
         if (_videoController != null) {
+          _videoController!.removeListener(_videoListener);
           _videoController!.dispose();
           _videoController = null;
           currentVideoId = null;
+          _hasVideo.value = false;
           if (mounted) setState(() {});
         }
+        return;
+      }
+
+      // New video or first time
+      if (newVideoId != currentVideoId) {
+        currentVideoId = newVideoId;
+
+        if (_videoController != null) {
+          _videoController!.load(newVideoId);
+          _videoController!.addListener(_videoListener);
+        } else {
+          // Create new controller
+          _videoController = YoutubePlayerController(
+            initialVideoId: newVideoId,
+            flags: const YoutubePlayerFlags(
+              autoPlay: false,
+              mute: false,
+              controlsVisibleAtStart: true,
+              hideControls: false,
+              enableCaption: true,
+            ),
+          );
+          _videoController!.addListener(_videoListener);
+        }
+
+        _hasVideo.value = true;
+        if (mounted) setState(() {});
       }
     });
   }
+  void _confirmDeleteRoom() {
+  Get.dialog(
+    AlertDialog(
+      backgroundColor: const Color(0xFF1E1E2C),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(25),
+        side: const BorderSide(color: Colors.white12),
+      ),
+      title: const Text(
+        "Delete Room?",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+      content: const Text(
+        "This action cannot be undone",
+        style: TextStyle(color: Colors.white70),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: const Text(
+            "Cancel",
+            style: TextStyle(color: Colors.white70),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+          onPressed: () {
+            deleteVM.deleteRoom(
+              roomId: roomId,
+              creatorId: creatorId,
+            );
+          },
+          child: const Text(
+            "Delete",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   void onsendMessage(String msg, {String type = 'txt'}) async {
     if (msg.isNotEmpty && roomId.isNotEmpty) {
@@ -189,6 +293,7 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
               children: [
                 // AppBar
                 Container(
+                  width: double.infinity,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
@@ -232,6 +337,7 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                           ],
                         ),
                       ),
+                      const SizedBox(width: 8),
                       IconButton(
                           onPressed: () {
                             linkVM.shareRoomLink(); // opens share dialog
@@ -242,46 +348,91 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
                                 .colorScheme
                                 .onPrimaryContainer,
                           )),
-                      IconButton(
-                        onPressed: () {
-                          linkVM.copyRoomLink(); // copies link to clipboard
-                        },
-                        icon: Icon(Icons.link, color: Colors.white),
+                      SizedBox(
+                        width: 40,
+                        child: PopupMenuButton<String>(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onSelected: (value) {
+                            if (value == 'copy') {
+                              linkVM.copyRoomLink();
+                            }
+
+                            if (value == 'delete') {
+                              _confirmDeleteRoom();
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'copy',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.link, size: 18),
+                                  SizedBox(width: 8),
+                                  Text("Copy Link"),
+                                ],
+                              ),
+                            ),
+                            if (isCurrentUserAdmin)
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, size: 18, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text("Delete Room",
+                                        style: TextStyle(color: Colors.red)),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
                 // Shared Video
-                if (_videoController != null)
-                  Container(
+                _hasVideo.value && _videoController != null
+                  ? SizedBox(
                     height: 220,
                     width: double.infinity,
-                    color: Colors.black,
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: YoutubePlayer(
-                            controller: _videoController!,
-                            showVideoProgressIndicator: true,
-                            aspectRatio: 16 / 9,
+                    child: Container(
+                      color: Colors.black,
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: YoutubePlayer(
+                              controller: _videoController!,
+                              showVideoProgressIndicator: true,
+                              aspectRatio: 16 / 9,
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          top: 5,
-                          right: 5,
-                          child: IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
-                            onPressed: () {
-                              _firestore
-                                  .collection('finalrooms')
-                                  .doc(roomId)
-                                  .update({'activeVideo': FieldValue.delete()});
-                            },
+                          Positioned(
+                            top: 5,
+                            right: 5,
+                            child: IconButton(
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              onPressed: () {
+                                _firestore
+                                    .collection('finalrooms')
+                                    .doc(roomId)
+                                    .update({'activeVideo': FieldValue.delete()});
+                              // Properly dispose video controller when closing
+                              if (_videoController != null) {
+                                _videoController!.removeListener(_videoListener);
+                                _videoController!.dispose();
+                                _videoController = null;
+                                currentVideoId = null;
+                              }
+                                _hasVideo.value = false;
+                                if (mounted) setState(() {});
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  )
+                  : const SizedBox.shrink(),
                 // Messages
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
@@ -546,4 +697,6 @@ class _ChatRoomscreenState extends State<ChatRoomscreen> {
       ),
     );
   }
+
 }
+

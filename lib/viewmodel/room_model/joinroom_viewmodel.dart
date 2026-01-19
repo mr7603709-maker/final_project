@@ -50,6 +50,7 @@ class JoinRoomViewModel extends GetxController {
           "roomId": roomId,
           "roomName": data['roomName'] ?? "Room Chat",
           "isPrivate": data['private'] ?? false,
+          "creatorId": data['adminId'] ?? '',
         },
       );
     } catch (e) {
